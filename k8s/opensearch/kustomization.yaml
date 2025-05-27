@@ -1,4 +1,0 @@
-resources:
-  - opensearch-deployment.yaml
-  - opensearch-service.yaml
-  - opensearch-configmap.yaml

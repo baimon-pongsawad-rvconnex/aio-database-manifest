@@ -1,0 +1,87 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: elasticsearch
+  labels:
+    app.kubernetes.io/name: eck-logstash
+    app.kubernetes.io/component: elasticsearch
+spec:
+  version: 8.14.0
+  # volumeClaimDeletePolicy: DeleteOnScaledownOnly
+  http:
+    service:
+      spec:
+        type: LoadBalancer
+        ports:
+          - name: https
+            nodePort: 31152
+            port: 9200
+            protocol: TCP
+            targetPort: 9200
+    tls:
+      selfSignedCertificate:
+        subjectAltNames:
+        - ip: 172.31.2.42
+  nodeSets:
+  - name: master-nodes
+    count: 1
+    config:
+      node.roles: ["master"]
+      node.store.allow_mmap: false
+    # podTemplate:
+    #   spec:
+    #     volumes:
+    #     - name: elasticsearch-data
+    #       persistentVolumeClaim:
+    #         claimName: elasticsearch-pv-claim-master
+    #     containers:
+    #     - name: elasticsearch
+    #       resources:
+    #         requests:
+    #           cpu: 1
+    #           memory: 2Gi
+    #         limits:
+    #           cpu: 1
+    #           memory: 4Gi
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        storageClassName: longhorn
+  - name: data-nodes
+    count: 1
+    config:
+      node.roles: ["data", "ingest", "ml", "transform"]
+      node.store.allow_mmap: false
+    # podTemplate:
+    #   spec:
+    #     volumes:
+    #     - name: elasticsearch-data
+    #       persistentVolumeClaim:
+    #         claimName: elasticsearch-pv-claim-data
+    # podTemplate:
+    #   spec:
+    #     containers:
+    #     - name: elasticsearch
+    #       resources:
+    #         requests:
+    #           cpu: 500m
+    #           memory: 1Gi
+    #         limits:
+    #           cpu: 1000m
+    #           memory: 2Gi
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data # Do not change this name unless you set up a volume mount for the data path.
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 50Gi
+        storageClassName: longhorn

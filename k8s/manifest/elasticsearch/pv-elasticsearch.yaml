@@ -1,0 +1,16 @@
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: elasticsearch-pv-data-content-1
+# spec:
+#   storageClassName: longhorn
+#   capacity:
+#     storage: 5Gi
+#   accessModes:
+#     - ReadWriteMany
+#   mountOptions:
+#     - hard
+#     - nfsvers=4.1
+#   nfs:
+#     path: /mnt/nfs_share/pv-wolftail-prod/nfs-data-content-1
+#     server: 192.168.150.99

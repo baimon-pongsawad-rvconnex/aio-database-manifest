@@ -1,0 +1,51 @@
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: kibana
+  labels:
+    app.kubernetes.io/name: eck-logstash
+    app.kubernetes.io/component: kibana
+spec:
+  version: 8.14.0
+  count: 1
+  config:
+    # csp.style_src: ["'self' https://fonts.googleapis.com"]
+    # csp.font_src: ["'self' https://fonts.gstatic.com"]
+    monitoring.ui.ccs.enabled: false
+    xpack.security.session.idleTimeout: 6h # default 8h
+    xpack.security.session.lifespan: 12h # default 30d
+    xpack.security.session.cleanupInterval: 3h # default 1d
+  http:
+    service:
+      spec:
+        type: NodePort
+        ports:
+          - name: https
+            nodePort: 31151
+            port: 5601
+            protocol: TCP
+            targetPort: 5601
+  elasticsearchRef:
+    name: elasticsearch
+  # image: harbor.rvconnex.com/wolftail/kibana:8.7.0.0.1.0
+  podTemplate:
+    spec:
+      containers:
+        - name: kibana
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 1
+              memory: 2Gi
+            limits:
+              cpu: 1
+              memory: 4Gi
+          env:
+            - name: ELASTIC_CLIENT_USERNAME
+              value: "elastic"
+            - name: ELASTIC_CLIENT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: elasticsearch-es-elastic-user
+                  key: elastic
+
