@@ -87,3 +87,19 @@ spec:
   nodeMaintenanceWindow:
     inProgress: false
     reusePVC: false
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cluster-cnpg-nodeport
+spec:
+  type: NodePort
+  ports:
+    - name: postgresql
+      port: 5432
+      targetPort: 5432
+      nodePort: 30432  # You can change this port number if needed
+  selector:
+    cnpg.io/cluster: cluster-cnpg
+    cnpg.io/instanceRole: primary
