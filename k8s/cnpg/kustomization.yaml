@@ -1,0 +1,5 @@
+resources:
+  - postgresql-deployment.yaml
+  - postgresql-service.yaml
+  - postgresql-configmap.yaml
+  - postgresql-secret.yaml 

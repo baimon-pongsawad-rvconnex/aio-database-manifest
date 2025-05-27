@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opensearch-config
+  namespace: logging
+data:
+  opensearch.yml: |
+    cluster.name: opensearch
+    network.host: 0.0.0.0
+    discovery.seed_hosts: opensearch
+    cluster.initial_master_nodes: opensearch-masters-0,opensearch-masters-1,opensearch-masters-2
+    plugins.security.disabled: false
+    plugins.security.ssl.transport.enabled: true
+    plugins.security.ssl.http.enabled: true 
