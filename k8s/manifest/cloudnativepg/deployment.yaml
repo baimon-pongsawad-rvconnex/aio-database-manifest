@@ -68,9 +68,6 @@ spec:
       memory: "1Gi"
       cpu: "2"
 
-  storage:
-    size: 1Gi
-
   affinity:
     enablePodAntiAffinity: true
     topologyKey: failure-domain.beta.kubernetes.io/zone
