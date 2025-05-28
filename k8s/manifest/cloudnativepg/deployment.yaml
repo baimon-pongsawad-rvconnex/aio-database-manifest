@@ -1,8 +1,8 @@
----
 apiVersion: v1
 kind: Secret
 metadata:
   name: cluster-user
+  namespace: database
 type: kubernetes.io/basic-auth
 stringData:
   username: postgres
@@ -12,6 +12,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: cluster-superuser
+  namespace: database
 type: kubernetes.io/basic-auth
 stringData:
   username: postgres
@@ -21,6 +22,7 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: cluster-cnpg
+  namespace: database
 spec:
   description: "Cluster CNPG"
   imageName: ghcr.io/cloudnative-pg/postgresql:15.4
@@ -50,27 +52,13 @@ spec:
     pg_hba:
     - host all all 10.240.0.0/16 scram-sha-256
 
-  bootstrap:
-    initdb:
-      database: app
-      owner: postgres
-      secret:
-        name: cluster-user
-        
   superuserSecret:
     name: cluster-superuser
   enableSuperuserAccess: true
-  
 
-  storage:
-    size: 1Gi
-    pvcTemplate:
-      storageClassName: longhorn
-      accessModes:
-        - ReadWriteOnce
-      resources:
-        requests:
-          storage: 1Gi
+  nodeMaintenanceWindow:
+    inProgress: false
+    reusePVC: true
 
   resources:
     requests:
@@ -83,23 +71,19 @@ spec:
   affinity:
     enablePodAntiAffinity: true
     topologyKey: failure-domain.beta.kubernetes.io/zone
-
-  nodeMaintenanceWindow:
-    inProgress: false
-    reusePVC: false
-
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: cluster-cnpg-nodeport
+  namespace: database
 spec:
   type: NodePort
   ports:
     - name: postgresql
       port: 5432
       targetPort: 5432
-      nodePort: 30432  # You can change this port number if needed
+      nodePort: 30432
   selector:
     cnpg.io/cluster: cluster-cnpg
     cnpg.io/instanceRole: primary
