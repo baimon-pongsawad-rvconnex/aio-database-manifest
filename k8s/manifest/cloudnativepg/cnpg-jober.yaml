@@ -1,0 +1,79 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: delete-cnpg-cluster-job
+  namespace: database
+spec:
+  schedule: "*/15 * * * *"  # This sets the job to run at the start of every hour
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: deleter-storage
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+          - name: delete-cluser-cnpg
+            image: bitnami/kubectl:latest  # A lightweight image with kubectl
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsNonRoot: true
+              capabilities:
+                drop:
+                  - ALL
+            command:
+                - /bin/bash
+                - '-c'
+                - >
+                  THRESHOLD=75; 
+
+                  pvc_list=$(kubectl get pvc -n database -o
+                  jsonpath='{.items[*].metadata.name}'); 
+
+                  pvc_count=$(echo "$pvc_list" | wc -w); 
+
+                  pvcs=($pvc_list);
+
+                  # Initialize group counter group_counter=0
+
+                  for ((i=0; i<${#pvcs[@]};i+=2)); do
+                    pod=${pvcs[$i]}
+                    wal=${pvcs[$i+1]}
+
+                    # Check if the pod and wal form a valid pair
+                    if [[ $wal == "$pod-wal" ]]; then
+                      group_counter=$((group_counter+1))
+                      echo "Group $group_counter: $pod and $wal"
+                    fi
+
+                    # Check if group count is less than 3
+
+                  done
+
+                  if [[ "$group_counter"  -eq 3 ]]; then
+                    for ((i=0; i<10; i++)); do
+                      if [[ "${pvcs[$i]}" == cluster-cnpg-*-wal ]]; then
+                        VOLUME_NAME=$(kubectl get pvc ${pvcs[$i]} -n database -o=jsonpath='{.spec.volumeName}');
+
+                        DATASET=$(kubectl exec ${pvcs[$i-1]} -n database -c postgres -- df -h | awk '/\/dev\/longhorn\/'$VOLUME_NAME'/ {print $5}' | tr -d '%');
+
+                        if [ "$DATASET" -gt "$THRESHOLD" ]; then
+
+                          echo "PVC $pvc is over $THRESHOLD% full (currently $DATASET%). Deleting pod and PVC.";
+
+                          kubectl delete pod ${pvcs[$i-1]} -n database --grace-period=0 --force && kubectl delete pvc ${pvcs[$i]} -n database --grace-period=0 --force && ${pvcs[$i-1]}
+                          break
+                        else
+                            echo "PVC $pvc is within limits (currently $DATASET%). No action taken."
+                        fi                       
+                      fi
+                    done                    
+                  elif [[ "$group_counter" -lt 3 ]]; then
+                      echo "Group data is less then system defulat: $group_counter";
+
+                    break
+                  fi
+          restartPolicy: OnFailure
+      ttlSecondsAfterFinished: 15
