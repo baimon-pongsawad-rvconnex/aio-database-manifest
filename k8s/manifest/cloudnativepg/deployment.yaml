@@ -24,7 +24,7 @@ metadata:
   name: cluster-cnpg
   namespace: database
 spec:
-  description: "Cluster CNPG"
+  description: "Cluster CNPG for DR-compatible setup"
   imageName: ghcr.io/cloudnative-pg/postgresql:15.4
   instances: 3
   startDelay: 30
@@ -50,11 +50,24 @@ spec:
       max_wal_size: '4GB'
 
     pg_hba:
-    - host all all 10.240.0.0/16 scram-sha-256
+      - host all all 10.240.0.0/16 scram-sha-256
 
   superuserSecret:
     name: cluster-superuser
   enableSuperuserAccess: true
+
+  storage:
+    size: 1Gi
+    pvcTemplate:
+      metadata:
+        annotations:
+          volume.beta.kubernetes.io/storage-class: longhorn
+      storageClassName: longhorn
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
 
   nodeMaintenanceWindow:
     inProgress: false
