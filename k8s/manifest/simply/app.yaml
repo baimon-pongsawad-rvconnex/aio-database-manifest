@@ -25,7 +25,7 @@ spec:
       volumes:
       - name: web-app-storage
         persistentVolumeClaim:
-          claimName: web-app-pvc
+          claimName: web-app-pvc-poc
 ---
 apiVersion: v1
 kind: Service
