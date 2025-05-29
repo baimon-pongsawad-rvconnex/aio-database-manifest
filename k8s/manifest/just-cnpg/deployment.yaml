@@ -1,0 +1,103 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cluster-user
+  namespace: database
+type: kubernetes.io/basic-auth
+stringData:
+  username: postgres
+  password: P@ssw0rd
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cluster-superuser
+  namespace: database
+type: kubernetes.io/basic-auth
+stringData:
+  username: postgres
+  password: P@ssw0rd
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster-cnpg
+  namespace: database
+spec:
+  description: "Cluster CNPG"
+  imageName: ghcr.io/cloudnative-pg/postgresql:15.4
+  instances: 1
+  startDelay: 30
+  stopDelay: 100
+  primaryUpdateStrategy: unsupervised
+
+  logLevel: debug
+
+  postgresql:
+    parameters:
+      max_connections: '200'
+      shared_buffers: '256MB'
+      effective_cache_size: '768MB'
+      maintenance_work_mem: '64MB'
+      checkpoint_completion_target: '0.9'
+      wal_buffers: '7864kB'
+      default_statistics_target: '100'
+      random_page_cost: '1.1'
+      effective_io_concurrency: '200'
+      work_mem: '655kB'
+      huge_pages: 'off'
+      min_wal_size: '1GB'
+      max_wal_size: '3GB'
+      log_statement: 'ddl'
+      log_checkpoints: 'on'
+
+    pg_hba:
+    - host all all 10.240.0.0/16 scram-sha-256
+
+  # bootstrap:
+  #   initdb:
+  #     database: app
+  #     owner: postgres
+  #     secret:
+  #       name: cluster-user
+        
+  superuserSecret:
+    name: cluster-superuser
+  enableSuperuserAccess: true
+  
+
+  storage:
+    size: 4Gi
+    pvcTemplate:
+      storageClassName: longhorn
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 4Gi
+  walStorage:
+    size: 4Gi
+    pvcTemplate:
+      storageClassName: longhorn
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 4Gi
+
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "1"
+    limits:
+      memory: "1Gi"
+      cpu: "2"
+
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: failure-domain.beta.kubernetes.io/zone
+
+  nodeMaintenanceWindow:
+    inProgress: false
+    reusePVC: true
