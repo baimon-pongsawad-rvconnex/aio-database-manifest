@@ -46,7 +46,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: web-app-pvc
+  name: web-app-pvc-poc
 spec:
   accessModes:
     - ReadWriteOnce
