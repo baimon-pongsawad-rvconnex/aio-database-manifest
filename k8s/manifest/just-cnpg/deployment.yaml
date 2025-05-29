@@ -67,35 +67,35 @@ spec:
   enableSuperuserAccess: true
   
 
-  storage:
-    size: 4Gi
-    pvcTemplate:
-      storageClassName: longhorn
-      accessModes:
-        - ReadWriteOnce
-      resources:
-        requests:
-          storage: 4Gi
-  walStorage:
-    size: 4Gi
-    pvcTemplate:
-      storageClassName: longhorn
-      accessModes:
-        - ReadWriteOnce
-      resources:
-        requests:
-          storage: 4Gi
-
-
   # storage:
-  #   size: "4Gi"
-  #   storageClass: longhorn
-  #   name: cluster-cnpg  # ← prefix ของ PVC ที่คุณ restore มาคือ cluster-cnpg-0
-
+  #   size: 4Gi
+  #   pvcTemplate:
+  #     storageClassName: longhorn
+  #     accessModes:
+  #       - ReadWriteOnce
+  #     resources:
+  #       requests:
+  #         storage: 4Gi
   # walStorage:
-  #   size: "4Gi"
-  #   storageClass: longhorn
-  #   name: cluster-cnpg-wal       # ← prefix ของ PVC ที่คุณ restore มาคือ cluster-cnpg-wal-0
+  #   size: 4Gi
+  #   pvcTemplate:
+  #     storageClassName: longhorn
+  #     accessModes:
+  #       - ReadWriteOnce
+  #     resources:
+  #       requests:
+  #         storage: 4Gi
+
+
+  storage:
+    size: "4Gi"
+    storageClass: longhorn
+    name: cluster-cnpg  # ← prefix ของ PVC ที่คุณ restore มาคือ cluster-cnpg-0
+
+  walStorage:
+    size: "4Gi"
+    storageClass: longhorn
+    name: cluster-cnpg-wal       # ← prefix ของ PVC ที่คุณ restore มาคือ cluster-cnpg-wal-0
 
 
   resources:
