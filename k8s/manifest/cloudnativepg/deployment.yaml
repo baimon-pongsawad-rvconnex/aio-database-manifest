@@ -23,6 +23,7 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: cluster-cnpg
+  namespace: database
 spec:
   description: "Cluster CNPG"
   imageName: ghcr.io/cloudnative-pg/postgresql:15.4
@@ -67,7 +68,6 @@ spec:
   
 
   storage:
-    size: 4Gi
     pvcTemplate:
       storageClassName: longhorn
       accessModes:
@@ -76,7 +76,6 @@ spec:
         requests:
           storage: 4Gi
   walStorage:
-    size: 4Gi
     pvcTemplate:
       storageClassName: longhorn
       accessModes:
@@ -99,4 +98,4 @@ spec:
 
   nodeMaintenanceWindow:
     inProgress: false
-    reusePVC: false
+    reusePVC: true
