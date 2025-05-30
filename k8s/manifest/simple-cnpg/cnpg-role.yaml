@@ -1,0 +1,66 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: delete-cluster
+  namespace: database
+rules:
+  - apiGroups: [""]
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+      - create 
+      - delete
+      - watch
+  - apiGroups: [""]
+    resources:
+      - persistentvolumeclaims  # Add PVC permissions
+    verbs:
+      - get
+      - list
+      - create
+      - delete
+      - watch
+  - apiGroups:
+      - extensions
+    resources:
+      - clusters
+    verbs:
+      - get
+      - list
+      - create
+  - apiGroups:
+      - apps
+    resources:
+      - clusters
+    verbs:
+      - get
+      - list
+      - create
+      - delete
+  - apiGroups:
+      - ''
+    resources:
+      - pods/exec       # Added this line to allow exec
+    verbs:
+      - create          # Only 'create' is needed for exec
+
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["patch","get", "list", "watch"]
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: deleter-storage-rb
+  namespace: database
+subjects:
+  - kind: ServiceAccount
+    name: deleter-storage
+    namespace: database
+roleRef:
+  kind: Role
+  name: delete-cluster
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,25 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster-cnpg
+  namespace: database
+spec:
+  imageName: ghcr.io/cloudnative-pg/postgresql:15.4
+  instances: 1
+
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: cluster-superuser
+
+  nodeMaintenanceWindow:
+    reusePVC: true
+
+  storage:
+    size: 4Gi
+    name: cluster-cnpg-1
+    storageClass: longhorn
+
+  walStorage:
+    size: 4Gi
+    name: cluster-cnpg-1-wal
+    storageClass: longhorn
