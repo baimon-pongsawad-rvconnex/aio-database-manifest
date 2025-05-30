@@ -31,42 +31,72 @@ spec:
   startDelay: 30
   stopDelay: 100
   primaryUpdateStrategy: unsupervised
-  logLevel: debug
 
-  superuserSecret:
-    name: cluster-superuser
-  enableSuperuserAccess: true
+  logLevel: debug
 
   postgresql:
     parameters:
-      max_connections: "200"
-      shared_buffers: "256MB"
-      effective_cache_size: "768MB"
-      maintenance_work_mem: "64MB"
-      checkpoint_completion_target: "0.9"
-      wal_buffers: "7864kB"
-      default_statistics_target: "100"
-      random_page_cost: "1.1"
-      effective_io_concurrency: "200"
-      work_mem: "655kB"
-      huge_pages: "off"
-      min_wal_size: "1GB"
-      max_wal_size: "3GB"
-      log_statement: "ddl"
-      log_checkpoints: "on"
+      max_connections: '200'
+      shared_buffers: '256MB'
+      effective_cache_size: '768MB'
+      maintenance_work_mem: '64MB'
+      checkpoint_completion_target: '0.9'
+      wal_buffers: '7864kB'
+      default_statistics_target: '100'
+      random_page_cost: '1.1'
+      effective_io_concurrency: '200'
+      work_mem: '655kB'
+      huge_pages: 'off'
+      min_wal_size: '1GB'
+      max_wal_size: '3GB'
+      log_statement: 'ddl'
+      log_checkpoints: 'on'
 
     pg_hba:
-      - host all all 10.240.0.0/16 scram-sha-256
+    - host all all 10.240.0.0/16 scram-sha-256
+
+  # bootstrap:
+  #   initdb:
+  #     database: app
+  #     owner: postgres
+  #     secret:
+  #       name: cluster-user
+        
+  superuserSecret:
+    name: cluster-superuser
+  enableSuperuserAccess: true
+  
+
+  # storage:
+  #   size: 4Gi
+  #   pvcTemplate:
+  #     storageClassName: longhorn
+  #     accessModes:
+  #       - ReadWriteOnce
+  #     resources:
+  #       requests:
+  #         storage: 4Gi
+  # walStorage:
+  #   size: 4Gi
+  #   pvcTemplate:
+  #     storageClassName: longhorn
+  #     accessModes:
+  #       - ReadWriteOnce
+  #     resources:
+  #       requests:
+  #         storage: 4Gi
+
 
   storage:
     size: "4Gi"
     storageClass: longhorn
-    name: cluster-cnpg    # ต้องมี PVC ชื่อ cluster-cnpg-0 (restore ไว้ก่อน)
+    name: cluster-cnpg-1  # ← prefix ของ PVC ที่คุณ restore มาคือ cluster-cnpg-0
 
   walStorage:
     size: "4Gi"
     storageClass: longhorn
-    name: cluster-cnpg-wal  # ต้องมี PVC ชื่อ cluster-cnpg-wal-0
+    name: cluster-cnpg-1-wal      # ← prefix ของ PVC ที่คุณ restore มาคือ cluster-cnpg-wal-0
+
 
   resources:
     requests:
