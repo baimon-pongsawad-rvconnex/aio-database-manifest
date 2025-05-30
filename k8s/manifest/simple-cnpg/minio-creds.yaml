@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: minio-creds
+  namespace: database
+type: Opaque
+stringData:
+  ACCESS_KEY: aP6gCnLm7zE9DFXKnW9q
+  SECRET_KEY: FIDKvSHHxGsnhZhoOpv7hxhh0kYpdhLnl5xbFQjf

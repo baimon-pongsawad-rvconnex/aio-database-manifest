@@ -14,10 +14,6 @@ spec:
   nodeMaintenanceWindow:
     reusePVC: true
 
-  bootstrap:
-    recovery:
-      source: cluster-cnpg
-
   storage:
     size: 4Gi
     name: cluster-cnpg-1
@@ -27,3 +23,17 @@ spec:
     size: 4Gi
     name: cluster-cnpg-1-wal
     storageClass: longhorn
+
+  backup:
+    retentionPolicy: "7d"
+    schedule: "* * * * *"  # every minute
+    barmanObjectStore:
+      destinationPath: "s3://cnpg-backup/cluster-cnpg"
+      endpointURL: "http://172.31.2.15:9000"
+      s3Credentials:
+        accessKeyId:
+          name: minio-creds
+          key: ACCESS_KEY
+        secretAccessKey:
+          name: minio-creds
+          key: SECRET_KEY
