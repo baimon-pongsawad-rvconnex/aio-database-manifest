@@ -37,3 +37,5 @@ spec:
         secretAccessKey:
           name: minio-creds
           key: SECRET_KEY
+      wal:
+        compression: gzip
