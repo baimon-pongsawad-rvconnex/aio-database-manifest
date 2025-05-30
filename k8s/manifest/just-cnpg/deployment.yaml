@@ -112,4 +112,3 @@ spec:
 
   nodeMaintenanceWindow:
     inProgress: false
-    reusePVC: true
