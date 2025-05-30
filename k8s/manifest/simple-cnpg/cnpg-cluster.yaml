@@ -14,6 +14,10 @@ spec:
   nodeMaintenanceWindow:
     reusePVC: true
 
+  bootstrap:
+    recovery:
+      source: cluster-cnpg
+
   storage:
     size: 4Gi
     name: cluster-cnpg-1
